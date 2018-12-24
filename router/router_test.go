@@ -31,7 +31,7 @@ func TestRouter(t *testing.T) {
 		},
 		{
 			name:           "expect GET to '/static' to return a list of files",
-			route:          "/static",
+			route:          "/static/",
 			expectedStatus: 200,
 			expectedBody:   "image.jpg",
 		},
