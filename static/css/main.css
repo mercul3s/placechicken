@@ -1,0 +1,77 @@
+@import url("styles.css");
+
+.body {
+    margin: 40px;
+}
+
+/*.img {
+    padding-top: 5px;
+    padding-left: 5px;
+}*/
+
+.sidebar {
+    grid-area: sidebar;
+}
+
+.content {
+    grid-area: content;
+    /*border: 1px solid blue;*/
+}
+
+.header {
+    grid-area: header;
+    margin-left:auto;
+    margin-right: auto;
+    /*border: 1px solid red;*/
+}
+
+.header img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.footer {
+    grid-area: footer;
+    /*border: 1px solid purple;*/
+}
+
+.footer img {
+    padding-left: 5px;
+}
+
+.center {
+    grid-area: center;
+
+    /*border: 1px solid orange;*/
+}
+
+.content img {
+    display: block;
+    position: relative;
+    bottom: 0;
+    padding-left: 5px;
+}
+
+.content p {
+    height: 220px;
+}
+
+.wrapper {
+    /*width: 100%*/
+    display: grid;
+    grid-gap: 8px;
+    grid-template-columns: 300px 300px 300px;
+    grid-template-areas:
+        "header header header"
+        "content content sidebar"
+        "content content sidebar"
+        "footer footer footer";
+    /*border: 1px solid green;*/
+}
+
+.all {
+    width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+}

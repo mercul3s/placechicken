@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mercul3s/placechicken/router"
+	"github.com/mercul3s/placechicken_go/router"
 )
 
 func main() {
