@@ -6,8 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/mercul3s/placechicken_go/resizer"
+	"github.com/mercul3s/placechicken_go/placer"
 )
+
+var p = placer.Config()
 
 // NewRouter returns a new mux router with all routes defined
 func NewRouter() *mux.Router {
@@ -20,7 +22,11 @@ func NewRouter() *mux.Router {
 }
 
 func resizeHandler(w http.ResponseWriter, r *http.Request) {
-	resizer.ImageResize(w, r)
+	image, err := p.GetImage(500, 300)
+	if err != nil {
+		fmt.Println("error resizing file")
+	}
+	fmt.Fprintf(w, image)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +35,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func eggHandler(w http.ResponseWriter, r *http.Request) {
-
 	chicken, err := ioutil.ReadFile("../static/chicken")
 	if err != nil {
 		fmt.Println("error reading file", err)
