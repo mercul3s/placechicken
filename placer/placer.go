@@ -12,8 +12,9 @@ import (
 
 // Place holds configuration info for the image resizing function.
 type Place struct {
-	Dir  Directory
-	Path string
+	Dir              Directory
+	OriginalFilePath string
+	ResizedFilePath  string
 }
 
 // Directory provides a function for listing files in a directory.
@@ -26,8 +27,9 @@ type dir struct{}
 // Config returns a configured Place
 func Config() Place {
 	return Place{
-		Dir:  &dir{},
-		Path: "../static/images/",
+		Dir:              &dir{},
+		OriginalFilePath: "../static/images/",
+		ResizedFilePath:  "../static/images/resized/",
 	}
 }
 
@@ -45,7 +47,7 @@ func (p *Place) GetImage(w int, h int) (string, error) {
 		return "error", err
 	}
 
-	src, err := imaging.Open(p.Path + srcImg.Name())
+	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name())
 	if err != nil {
 		return "error", err
 	}
@@ -57,12 +59,11 @@ func (p *Place) GetImage(w int, h int) (string, error) {
 }
 
 func (p *Place) randImg() (os.FileInfo, error) {
-	files, err := p.Dir.List(p.Path)
+	files, err := p.Dir.List(p.OriginalFilePath)
 	if err != nil {
 		return nil, err
 	}
 	if len(files) > 0 {
-		fmt.Printf("found %d files in directory\n", len(files))
 		randIdx := rand.Intn(len(files))
 		randFile := files[randIdx]
 		return randFile, nil
@@ -73,7 +74,7 @@ func (p *Place) randImg() (os.FileInfo, error) {
 func (p *Place) newFileName(name string, w int, h int) string {
 	idx := strings.Index(name, ".jpg")
 	if idx > -1 {
-		return fmt.Sprintf("%s%s-%dX%d%s", p.Path, name[:idx], w, h, name[idx:])
+		return fmt.Sprintf("%s%s-%dX%d%s", p.ResizedFilePath, name[:idx], w, h, name[idx:])
 	}
 	return name
 }

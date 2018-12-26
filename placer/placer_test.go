@@ -18,6 +18,10 @@ func (t *testDir) List(p string) ([]os.FileInfo, error) {
 }
 
 func TestImageResizer(t *testing.T) {
+	err := os.Mkdir("/tmp/placechicken", 0700)
+	if err != nil {
+		t.Fatal(err)
+	}
 	tt := []struct {
 		name           string
 		fileName       string
@@ -34,7 +38,7 @@ func TestImageResizer(t *testing.T) {
 			path:           "../static/images/test/",
 			width:          500,
 			height:         300,
-			expectedResult: "../static/images/test/original-test-image-500X300.jpg",
+			expectedResult: "/tmp/placechicken/original-test-image-500X300.jpg",
 			expectedErr:    nil,
 		},
 	}
@@ -42,8 +46,9 @@ func TestImageResizer(t *testing.T) {
 		td := &testDir{}
 
 		place := Place{
-			Dir:  td,
-			Path: "../static/images/test/",
+			Dir:              td,
+			OriginalFilePath: "../static/images/test/",
+			ResizedFilePath:  "/tmp/placechicken/",
 		}
 		// get test image
 		fileInfo, err := os.Stat(table.path + table.fileName)
@@ -59,8 +64,10 @@ func TestImageResizer(t *testing.T) {
 		assert.Equal(t, table.expectedResult, resized)
 		// check that the new file exists
 		assert.FileExists(t, resized)
-		// clean up
-		os.Remove(resized)
+	}
+	err = os.RemoveAll("/tmp/placechicken")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -88,8 +95,8 @@ func TestGetRandomImage(t *testing.T) {
 	for _, table := range tt {
 		d := &dir{}
 		place := Place{
-			Dir:  d,
-			Path: table.path,
+			Dir:              d,
+			OriginalFilePath: table.path,
 		}
 		rImage, err := place.randImg()
 		if rImage != nil {
@@ -127,7 +134,8 @@ func TestNewFileName(t *testing.T) {
 
 	for _, table := range tt {
 		p := Place{
-			Path: table.path,
+			OriginalFilePath: table.path,
+			ResizedFilePath:  table.path,
 		}
 		name := p.newFileName(table.name, table.width, table.height)
 		assert.Equal(t, table.expected, name)
