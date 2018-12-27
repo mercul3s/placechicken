@@ -4,18 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mercul3s/placechicken/test_helpers"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
-
-type testDir struct {
-	mock.Mock
-}
-
-func (t *testDir) List(p string) ([]os.FileInfo, error) {
-	args := t.Called(p)
-	return args.Get(0).([]os.FileInfo), args.Error(1)
-}
 
 func TestImageResizer(t *testing.T) {
 	err := os.Mkdir("/tmp/placechicken", 0700)
@@ -38,12 +29,12 @@ func TestImageResizer(t *testing.T) {
 			path:           "../static/images/test/",
 			width:          500,
 			height:         300,
-			expectedResult: "/tmp/placechicken/original-test-image-500X300.jpg",
+			expectedResult: "/tmp/placechicken/original-test-image-500x300.jpg",
 			expectedErr:    nil,
 		},
 	}
 	for _, table := range tt {
-		td := &testDir{}
+		td := &testHelpers.Dir{}
 
 		place := Place{
 			Dir:              td,
@@ -121,7 +112,7 @@ func TestNewFileName(t *testing.T) {
 			path:     "/testpath/",
 			width:    400,
 			height:   800,
-			expected: "/testpath/test-image-400X800.jpg",
+			expected: "/testpath/test-image-400x800.jpg",
 		},
 		{
 			name:     "test-image",

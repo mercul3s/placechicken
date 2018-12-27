@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mercul3s/placechicken_go/router"
+	"github.com/mercul3s/placechicken/placer"
+	"github.com/mercul3s/placechicken/router"
 )
 
 func main() {
-	router := router.NewRouter()
-	http.Handle("/", router)
-	err := http.ListenAndServe(":8888", router)
+	p := placer.Config()
+	m := router.NewMux(p)
+	err := http.ListenAndServe(":8888", m.Router)
 	if err != nil {
 		fmt.Println(err)
 	}

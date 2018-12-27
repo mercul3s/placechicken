@@ -74,7 +74,7 @@ func (p *Place) randImg() (os.FileInfo, error) {
 func (p *Place) newFileName(name string, w int, h int) string {
 	idx := strings.Index(name, ".jpg")
 	if idx > -1 {
-		return fmt.Sprintf("%s%s-%dX%d%s", p.ResizedFilePath, name[:idx], w, h, name[idx:])
+		return fmt.Sprintf("%s%s-%dx%d%s", p.ResizedFilePath, name[:idx], w, h, name[idx:])
 	}
 	return name
 }
