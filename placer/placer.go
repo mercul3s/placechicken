@@ -2,6 +2,7 @@ package placer
 
 import (
 	"fmt"
+	"image"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -24,12 +25,12 @@ type Directory interface {
 
 type dir struct{}
 
-// Config returns a configured Place
-func Config() Place {
+// Config returns a Place configuration with file settings
+func Config(oPath string, rPath string) Place {
 	return Place{
 		Dir:              &dir{},
-		OriginalFilePath: "../static/images/",
-		ResizedFilePath:  "../static/images/resized/",
+		OriginalFilePath: oPath,
+		ResizedFilePath:  rPath,
 	}
 }
 
@@ -40,22 +41,28 @@ func (r *dir) List(p string) ([]os.FileInfo, error) {
 
 // GetImage takes a width and height and returns an image sized to the
 // dimensions specified.
-func (p *Place) GetImage(w int, h int) (string, error) {
+func (p *Place) GetImage(w int, h int) (image.Image, error) {
 	// get a random image from the images dir
 	srcImg, err := p.randImg()
 	if err != nil {
-		return "error", err
+		return nil, err
 	}
 
+	fmt.Println(srcImg.Name())
 	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name())
 	if err != nil {
-		return "error", err
+		fmt.Printf("original file name error: %s\n", err.Error())
+		return nil, err
 	}
 
 	name := p.newFileName(srcImg.Name(), w, h)
 	resized := imaging.Resize(src, w, h, imaging.Lanczos)
 	err = imaging.Save(resized, name)
-	return name, nil
+	if err != nil {
+		fmt.Printf("save error: %s\n", err.Error())
+		return nil, err
+	}
+	return resized, nil
 }
 
 func (p *Place) randImg() (os.FileInfo, error) {
@@ -63,12 +70,27 @@ func (p *Place) randImg() (os.FileInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if len(files) > 0 {
-		randIdx := rand.Intn(len(files))
+		imageFiles := getOnlyImages(files)
+		for _, file := range imageFiles {
+			fmt.Println(file.Name())
+		}
+		randIdx := rand.Intn(len(imageFiles))
 		randFile := files[randIdx]
 		return randFile, nil
 	}
 	return nil, nil
+}
+
+func getOnlyImages(f []os.FileInfo) []os.FileInfo {
+	var imageFiles = []os.FileInfo{}
+	for _, file := range f {
+		if strings.Contains(file.Name(), "original") {
+			imageFiles = append(imageFiles, file)
+		}
+	}
+	return imageFiles
 }
 
 func (p *Place) newFileName(name string, w int, h int) string {

@@ -6,72 +6,70 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/disintegration/imaging"
 	"github.com/gorilla/mux"
 	"github.com/mercul3s/placechicken/placer"
 )
 
 // Mux holds the configuration information for an router.
 type Mux struct {
-	Place  placer.Place
-	Router *mux.Router
+	Place       placer.Place
+	Router      *mux.Router
+	staticDir   string
+	templateDir string
 }
 
 // NewMux returns a new mux router with all routes defined
-func NewMux(p placer.Place) Mux {
+func NewMux(place placer.Place, sDir string, tDir string) Mux {
 	r := mux.NewRouter()
 	m := Mux{
-		Place:  p,
-		Router: r,
+		Place:       place,
+		Router:      r,
+		staticDir:   sDir,
+		templateDir: tDir,
 	}
 	m.Router.HandleFunc("/", m.index).Methods("GET")
 	m.Router.HandleFunc("/{width}/{height}", m.resizeHandler).Methods("GET")
-	m.Router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../static/"))))
-	m.Router.NotFoundHandler = http.HandlerFunc(eggHandler)
+	m.Router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(sDir))))
+	m.Router.NotFoundHandler = http.HandlerFunc(m.eggHandler)
 
 	return m
 }
 
 func (m Mux) index(w http.ResponseWriter, r *http.Request) {
+	//indexPage :=
 	fmt.Fprintf(w, "Hello world")
 }
 
 func (m Mux) resizeHandler(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
-	width, err := strconv.Atoi(v["width"])
-	if err != nil {
-		handleClientError(w, err)
-		return
-	}
-	height, err := strconv.Atoi(v["height"])
-	if err != nil {
-		handleClientError(w, err)
+	width, wErr := strconv.Atoi(v["width"])
+	height, hErr := strconv.Atoi(v["height"])
+	if wErr != nil && hErr != nil {
+		msg := fmt.Sprintf("unable to process request: must provide width or height")
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	image, err := m.Place.GetImage(width, height)
 	if err != nil {
-		handleServerError(w, err)
+		msg := fmt.Sprintf("unable to process request: %s", err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, image)
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	imaging.Encode(w, image, imaging.JPEG)
 }
 
-func eggHandler(w http.ResponseWriter, r *http.Request) {
-	chicken, err := ioutil.ReadFile("../static/chicken")
+func (m Mux) eggHandler(w http.ResponseWriter, r *http.Request) {
+	// figure out how to serve this file from the file server
+	// or make it a template page?
+	chicken, err := ioutil.ReadFile(m.templateDir + "chicken")
 	if err != nil {
-		fmt.Println("error reading file", err)
+		msg := fmt.Sprintf("error reading file: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
 	}
 	w.WriteHeader(http.StatusNotFound)
 	fmt.Fprintf(w, string(chicken))
-}
-
-func handleServerError(w http.ResponseWriter, e error) {
-	w.WriteHeader(http.StatusBadRequest)
-	msg := fmt.Sprintf("unable to process request: %s", e)
-	fmt.Fprintf(w, msg)
-}
-
-func handleClientError(w http.ResponseWriter, e error) {
-	w.WriteHeader(http.StatusInternalServerError)
-	msg := fmt.Sprintf("unable to process request: %s", e)
-	fmt.Fprintf(w, msg)
 }
