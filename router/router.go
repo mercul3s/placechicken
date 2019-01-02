@@ -44,7 +44,7 @@ func NewMux(place placer.Place, sDir string, tDir string) Mux {
 
 func (m Mux) index(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles(m.templateDir + "index.html"))
-	data := PageData{Image: "/200/300"}
+	data := PageData{Image: "/605/0"}
 	err := t.Execute(w, data)
 	if err != nil {
 		msg := fmt.Sprintf("unable to process request: %s", err.Error())
