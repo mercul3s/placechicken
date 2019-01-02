@@ -40,7 +40,7 @@ func TestRouter(t *testing.T) {
 			name:           "expect GET to '/' return the index page",
 			route:          "/",
 			expectedStatus: 200,
-			expectedBody:   "Hello world",
+			expectedBody:   "Place Chicken",
 		},
 		{
 			name:           "expect GET to '/static' to return a list of files",
