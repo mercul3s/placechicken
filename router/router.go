@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -17,6 +18,11 @@ type Mux struct {
 	Router      *mux.Router
 	staticDir   string
 	templateDir string
+}
+
+// PageData stores information for output in a template.
+type PageData struct {
+	Image string
 }
 
 // NewMux returns a new mux router with all routes defined
@@ -37,8 +43,14 @@ func NewMux(place placer.Place, sDir string, tDir string) Mux {
 }
 
 func (m Mux) index(w http.ResponseWriter, r *http.Request) {
-	//indexPage :=
-	fmt.Fprintf(w, "Hello world")
+	t := template.Must(template.ParseFiles(m.templateDir + "index.html"))
+	data := PageData{Image: "/200/300"}
+	err := t.Execute(w, data)
+	if err != nil {
+		msg := fmt.Sprintf("unable to process request: %s", err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 }
 
 func (m Mux) resizeHandler(w http.ResponseWriter, r *http.Request) {

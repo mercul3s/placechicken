@@ -48,10 +48,8 @@ func (p *Place) GetImage(w int, h int) (image.Image, error) {
 		return nil, err
 	}
 
-	fmt.Println(srcImg.Name())
 	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name())
 	if err != nil {
-		fmt.Printf("original file name error: %s\n", err.Error())
 		return nil, err
 	}
 
@@ -73,9 +71,6 @@ func (p *Place) randImg() (os.FileInfo, error) {
 
 	if len(files) > 0 {
 		imageFiles := getOnlyImages(files)
-		for _, file := range imageFiles {
-			fmt.Println(file.Name())
-		}
 		randIdx := rand.Intn(len(imageFiles))
 		randFile := files[randIdx]
 		return randFile, nil

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	p := placer.Config("./static/images/", "./static/images/resized/")
-	m := router.NewMux(p, "./static/", "./templates/")
+	m := router.NewMux(p, "static/", "templates/")
 	err := http.ListenAndServe(":8888", m.Router)
 	if err != nil {
 		fmt.Println(err)

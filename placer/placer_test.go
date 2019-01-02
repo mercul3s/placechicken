@@ -52,8 +52,6 @@ func TestImageResizer(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//		assert.Equal(t, table.expectedResult, resized)
-
 		// check that the new file exists
 		assert.FileExists(t, table.expectedResult)
 	}
