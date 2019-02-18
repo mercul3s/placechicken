@@ -1,18 +1,25 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/mercul3s/placechicken/placer"
 	"github.com/mercul3s/placechicken/router"
 )
 
+var logger = log.New(os.Stdout, "placechicken:", log.Lshortfile)
+
 func main() {
-	p := placer.Config("./static/images/", "./static/images/resized/")
+	static := os.Getenv("STATIC")
+	resized := os.Getenv("RESIZED")
+	p := placer.Config(static, resized)
 	m := router.NewMux(p, "static/", "templates/")
 	err := http.ListenAndServe(":8888", m.Router)
 	if err != nil {
-		fmt.Println(err)
+		logger.Print(err)
+	} else {
+		logger.Print("placechicken started")
 	}
 }

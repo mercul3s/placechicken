@@ -74,8 +74,6 @@ func (m Mux) resizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m Mux) eggHandler(w http.ResponseWriter, r *http.Request) {
-	// figure out how to serve this file from the file server
-	// or make it a template page?
 	chicken, err := ioutil.ReadFile(m.templateDir + "chicken")
 	if err != nil {
 		msg := fmt.Sprintf("error reading file: %s", err)
