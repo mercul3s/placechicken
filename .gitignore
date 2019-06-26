@@ -2,3 +2,5 @@
 coverage.out
 *.out
 resized/*.jpg
+resized*
+bin
