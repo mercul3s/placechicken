@@ -18,7 +18,8 @@ type Place struct {
 	ResizedFilePath  string
 }
 
-// Directory provides a function for listing files in a directory.
+// Directory provides a function for listing files in a local or
+// remote directory.
 type Directory interface {
 	List(string) ([]os.FileInfo, error)
 }
