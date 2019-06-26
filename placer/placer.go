@@ -3,7 +3,6 @@ package placer
 import (
 	"fmt"
 	"image"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
@@ -24,8 +23,6 @@ type Directory interface {
 	List(string) ([]os.FileInfo, error)
 }
 
-type dir struct{}
-
 // Config returns a Place configuration with file settings
 func Config(oPath string, rPath string) Place {
 	return Place{
@@ -33,11 +30,6 @@ func Config(oPath string, rPath string) Place {
 		OriginalFilePath: oPath,
 		ResizedFilePath:  rPath,
 	}
-}
-
-func (r *dir) List(p string) ([]os.FileInfo, error) {
-	fileList, err := ioutil.ReadDir(p)
-	return fileList, err
 }
 
 // GetImage takes a width and height and returns an image sized to the
