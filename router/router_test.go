@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/mercul3s/placechicken/placer"
-	"github.com/mercul3s/placechicken/test_helpers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +18,7 @@ func TestRouter(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	d := &testHelpers.Dir{}
+	d := &placer.MockDir{}
 	p := placer.Place{
 		Dir:              d,
 		OriginalFilePath: "../static/images/test/",
@@ -116,11 +115,13 @@ func TestImageRoute(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// get test image
 			fileInfo, err := os.Stat("../static/images/test/original-test-image.jpg")
-			fileList := []os.FileInfo{fileInfo}
 			if err != nil {
-				t.Fatal(err)
+				assert.FailNowf(t, "could not get test image", err.Error())
 			}
-			d := &testHelpers.Dir{}
+			fileList := []placer.Image{}
+			file := placer.Image{Name: fileInfo.Name()}
+			fileList = append(fileList, file)
+			d := &placer.MockDir{}
 			p := placer.Place{
 				Dir:              d,
 				OriginalFilePath: "../static/images/test/",
@@ -128,6 +129,7 @@ func TestImageRoute(t *testing.T) {
 			}
 
 			d.On("List", "../static/images/test/").Return(fileList, test.expectedError)
+			d.On("RandImg", "../static/images/test/").Return(file, test.expectedError)
 			r := NewMux(p, "../static/", "../templates/")
 			req := httptest.NewRequest("GET", test.route, nil)
 			rr := httptest.NewRecorder()

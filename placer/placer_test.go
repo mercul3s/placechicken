@@ -4,14 +4,15 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mercul3s/placechicken/test_helpers"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImageResizer(t *testing.T) {
-	err := os.Mkdir("/tmp/placechicken", 0700)
-	if err != nil {
-		t.Fatal(err)
+	if _, err := os.Stat("/tmp/placechicken"); os.IsNotExist(err) {
+		err := os.Mkdir("/tmp/placechicken", 0700)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 	tt := []struct {
 		name           string
@@ -34,20 +35,23 @@ func TestImageResizer(t *testing.T) {
 		},
 	}
 	for _, table := range tt {
-		td := &testHelpers.Dir{}
+		td := MockDir{}
 
 		place := Place{
-			Dir:              td,
+			Dir:              &td,
 			OriginalFilePath: "../static/images/test/",
 			ResizedFilePath:  "/tmp/placechicken/",
 		}
 		// get test image
 		fileInfo, err := os.Stat(table.path + table.fileName)
-		fileList := []os.FileInfo{fileInfo}
 		if err != nil {
-			t.Fatal(err)
+			assert.FailNowf(t, "could not get test image", err.Error())
 		}
+		fileList := []Image{}
+		file := Image{Name: fileInfo.Name()}
+		fileList = append(fileList, file)
 		td.On("List", "../static/images/test/").Return(fileList, table.expectedErr)
+		td.On("RandImg", "../static/images/test/").Return(file, table.expectedErr)
 		_, err = place.GetImage(table.width, table.height)
 		if err != nil {
 			t.Fatal(err)
@@ -55,46 +59,9 @@ func TestImageResizer(t *testing.T) {
 		// check that the new file exists
 		assert.FileExists(t, table.expectedResult)
 	}
-	err = os.RemoveAll("/tmp/placechicken")
+	err := os.RemoveAll("/tmp/placechicken")
 	if err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestGetRandomImage(t *testing.T) {
-	tt := []struct {
-		name           string
-		path           string
-		expectedResult string
-		expectedError  error
-	}{
-		{
-			name:           "returns only image in directory",
-			path:           "../static/images/test/",
-			expectedResult: "original-test-image.jpg",
-			expectedError:  nil,
-		},
-		{
-			name:           "returns error for non existent directory",
-			path:           "./bogus",
-			expectedResult: "",
-			expectedError:  nil,
-		},
-	}
-
-	for _, table := range tt {
-		d := &dir{}
-		place := Place{
-			Dir:              d,
-			OriginalFilePath: table.path,
-		}
-		rImage, err := place.randImg()
-		if rImage != nil {
-			assert.Equal(t, table.expectedResult, rImage.Name())
-			assert.Nil(t, err)
-		} else {
-			assert.Error(t, err)
-		}
 	}
 }
 

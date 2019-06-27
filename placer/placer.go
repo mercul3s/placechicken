@@ -3,8 +3,6 @@ package placer
 import (
 	"fmt"
 	"image"
-	"math/rand"
-	"os"
 	"strings"
 
 	"github.com/disintegration/imaging"
@@ -17,16 +15,22 @@ type Place struct {
 	ResizedFilePath  string
 }
 
+// Image ...
+type Image struct {
+	Name string
+}
+
 // Directory provides a function for listing files in a local or
 // remote directory.
 type Directory interface {
-	List(string) ([]os.FileInfo, error)
+	List(string) ([]Image, error)
+	RandImg(string) (Image, error)
 }
 
 // Config returns a Place configuration with file settings
-func Config(oPath string, rPath string) Place {
+func Config(dir Directory, oPath string, rPath string) Place {
 	return Place{
-		Dir:              &dir{},
+		Dir:              dir,
 		OriginalFilePath: oPath,
 		ResizedFilePath:  rPath,
 	}
@@ -36,17 +40,17 @@ func Config(oPath string, rPath string) Place {
 // dimensions specified.
 func (p *Place) GetImage(w int, h int) (image.Image, error) {
 	// get a random image from the images dir
-	srcImg, err := p.randImg()
+	srcImg, err := p.Dir.RandImg(p.OriginalFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name())
+	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	name := p.newFileName(srcImg.Name(), w, h)
+	name := p.newFileName(srcImg.Name, w, h)
 	resized := imaging.Resize(src, w, h, imaging.Lanczos)
 	err = imaging.Save(resized, name)
 	if err != nil {
@@ -54,31 +58,6 @@ func (p *Place) GetImage(w int, h int) (image.Image, error) {
 		return nil, err
 	}
 	return resized, nil
-}
-
-func (p *Place) randImg() (os.FileInfo, error) {
-	files, err := p.Dir.List(p.OriginalFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(files) > 0 {
-		imageFiles := getOnlyImages(files)
-		randIdx := rand.Intn(len(imageFiles))
-		randFile := files[randIdx]
-		return randFile, nil
-	}
-	return nil, nil
-}
-
-func getOnlyImages(f []os.FileInfo) []os.FileInfo {
-	var imageFiles = []os.FileInfo{}
-	for _, file := range f {
-		if strings.Contains(file.Name(), "original") {
-			imageFiles = append(imageFiles, file)
-		}
-	}
-	return imageFiles
 }
 
 func (p *Place) newFileName(name string, w int, h int) string {
