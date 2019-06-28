@@ -10,7 +10,7 @@ import (
 func TestDirList(t *testing.T) {
 	path := "../static/images/test/"
 	d := Dir{}
-	iList, err := d.List(path)
+	iList, err := d.list(path)
 	assert.Nil(t, err)
 	assert.Equal(t, len(iList), 1)
 }

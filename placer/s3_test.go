@@ -13,7 +13,7 @@ func TestS3List(t *testing.T) {
 	if err != nil {
 		assert.FailNowf(t, "Error creating s3 session", err.Error())
 	}
-	iList, err := s.List(bucket)
+	iList, err := s.list(bucket)
 	assert.Nil(t, err)
 	assert.Equal(t, len(iList), 1)
 }

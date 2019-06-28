@@ -23,7 +23,6 @@ type Image struct {
 // Directory provides a function for listing files in a local or
 // remote directory.
 type Directory interface {
-	List(string) ([]Image, error)
 	RandImg(string) (Image, error)
 }
 
@@ -45,6 +44,8 @@ func (p *Place) GetImage(w int, h int) (image.Image, error) {
 		return nil, err
 	}
 
+	// is there a way to do this as an io stream rather than opening a file
+	// every time?
 	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name)
 	if err != nil {
 		return nil, err
