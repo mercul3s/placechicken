@@ -10,7 +10,7 @@ type MockDir struct {
 }
 
 // List is a mock directory listing method.
-func (t *MockDir) List(p string) ([]Image, error) {
+func (t *MockDir) list(p string) ([]Image, error) {
 	args := t.Called(p)
 	return args.Get(0).([]Image), args.Error(1)
 }

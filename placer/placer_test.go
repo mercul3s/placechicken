@@ -54,7 +54,7 @@ func TestImageResizer(t *testing.T) {
 		fileList := []Image{}
 		file := Image{Name: fileInfo.Name()}
 		fileList = append(fileList, file)
-		td.On("List", "../static/images/test/").Return(fileList, table.expectedErr)
+		td.On("list", "../static/images/test/").Return(fileList, table.expectedErr)
 		td.On("RandImg", "../static/images/test/").Return(file, table.expectedErr)
 		image, err := place.GetImage(table.width, table.height)
 		if err != nil {
