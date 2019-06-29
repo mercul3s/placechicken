@@ -84,14 +84,3 @@ func (s *S3) download(i Image, b string) (string, error) {
 	return file.Name(), nil
 
 }
-
-func (s *S3) save() {
-
-}
-
-// s3 workflow for getting an image, resizing it, and returning to user:
-// - get random image from the bucket (list all and do a random)
-// - download it to a temp file
-// - resize the image
-// - upload it to s3
-// - return the s3 url to the user (load image from s3)

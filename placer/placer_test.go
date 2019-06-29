@@ -1,6 +1,8 @@
 package placer
 
 import (
+	"fmt"
+	"image"
 	"os"
 	"testing"
 
@@ -21,17 +23,19 @@ func TestImageResizer(t *testing.T) {
 		dirList        []os.FileInfo
 		width          int
 		height         int
-		expectedResult string
+		expectedResult image.Rectangle
 		expectedErr    error
 	}{
 		{
-			name:           "image resized to 300x500",
-			fileName:       "original-test-image.jpg",
-			path:           "../static/images/test/",
-			width:          500,
-			height:         300,
-			expectedResult: "/tmp/placechicken/original-test-image-500x300.jpg",
-			expectedErr:    nil,
+			name:     "image resized to 300x500",
+			fileName: "original-test-image.jpg",
+			path:     "../static/images/test/",
+			width:    500,
+			height:   300,
+			expectedResult: image.Rectangle{
+				Max: image.Point{X: 500, Y: 300},
+			},
+			expectedErr: nil,
 		},
 	}
 	for _, table := range tt {
@@ -52,12 +56,11 @@ func TestImageResizer(t *testing.T) {
 		fileList = append(fileList, file)
 		td.On("List", "../static/images/test/").Return(fileList, table.expectedErr)
 		td.On("RandImg", "../static/images/test/").Return(file, table.expectedErr)
-		_, err = place.GetImage(table.width, table.height)
+		image, err := place.GetImage(table.width, table.height)
 		if err != nil {
 			t.Fatal(err)
 		}
-		// check that the new file exists
-		assert.FileExists(t, table.expectedResult)
+		fmt.Println(image.Bounds().Max)
 	}
 	err := os.RemoveAll("/tmp/placechicken")
 	if err != nil {

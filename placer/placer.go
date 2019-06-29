@@ -44,20 +44,13 @@ func (p *Place) GetImage(w int, h int) (image.Image, error) {
 		return nil, err
 	}
 
-	// is there a way to do this as an io stream rather than opening a file
-	// every time?
 	src, err := imaging.Open(p.OriginalFilePath + srcImg.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	name := p.newFileName(srcImg.Name, w, h)
+	//	name := p.newFileName(srcImg.Name, w, h)
 	resized := imaging.Resize(src, w, h, imaging.Lanczos)
-	err = imaging.Save(resized, name)
-	if err != nil {
-		fmt.Printf("save error: %s\n", err.Error())
-		return nil, err
-	}
 	return resized, nil
 }
 

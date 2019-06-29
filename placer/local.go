@@ -9,17 +9,6 @@ import (
 // Dir struct exists as a placeholder to allow abstracting os directory methods.
 type Dir struct{}
 
-func (d *Dir) list(p string) ([]Image, error) {
-	fileList, err := ioutil.ReadDir(p)
-	i := []Image{}
-	for _, file := range fileList {
-		if strings.Contains(file.Name(), "original") {
-			i = append(i, Image{Name: file.Name()})
-		}
-	}
-	return i, err
-}
-
 // RandImg gets the contents of a directory, filters it for only images, and
 // then returns a random image.
 func (d *Dir) RandImg(p string) (Image, error) {
@@ -35,4 +24,15 @@ func (d *Dir) RandImg(p string) (Image, error) {
 		return randFile, nil
 	}
 	return i, nil
+}
+
+func (d *Dir) list(p string) ([]Image, error) {
+	fileList, err := ioutil.ReadDir(p)
+	i := []Image{}
+	for _, file := range fileList {
+		if strings.Contains(file.Name(), "original") {
+			i = append(i, Image{Name: file.Name()})
+		}
+	}
+	return i, err
 }
